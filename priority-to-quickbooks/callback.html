@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Priority To QuickBooks - sign-in</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; color: #1A2744; background: #F4F6FA; margin: 0; padding: 40px 16px; }
+  main { max-width: 560px; margin: 0 auto; background: #fff; border: 1px solid #D5DCE6; border-radius: 8px; padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 12px; }
+  p { line-height: 1.5; margin: 0 0 10px; }
+  .muted { color: #5A7090; font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Priority To QuickBooks</h1>
+  <p id="message">Passing your QuickBooks sign-in to the app on this PC&hellip;</p>
+  <p class="muted" id="hint">Keep Priority To QuickBooks open. It is waiting for this sign-in.</p>
+</main>
+<script>
+  // HTTPS relay for the QuickBooks Online sign-in (OAuth2 redirect).
+  // Intuit production keys require an https:// redirect URI. This page receives Intuit's reply
+  // and forwards the same query string (code, state, realmId, or error) to the app's listener
+  // on this PC. It stores nothing, sends nothing anywhere else, and loads no other files.
+  // The app checks the state value, so a forged forward is rejected there.
+  (function () {
+    var LOCAL_LISTENER = "http://localhost:53140/callback";
+    var query = window.location.search;
+    var params = new URLSearchParams(query);
+    var hasReply = (params.get("code") && params.get("state")) || params.get("error");
+
+    if (!hasReply) {
+      document.getElementById("message").textContent =
+        "This page is only used during a QuickBooks sign-in from Priority To QuickBooks.";
+      document.getElementById("hint").textContent =
+        "To sign in, open Priority To QuickBooks and click Sign in to QuickBooks.";
+      return;
+    }
+
+    if (params.get("error")) {
+      document.getElementById("message").textContent =
+        "QuickBooks did not complete the sign-in (" + params.get("error") + "). Passing this to the app.";
+    }
+
+    window.location.replace(LOCAL_LISTENER + query);
+  })();
+</script>
+</body>
+</html>
